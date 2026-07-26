@@ -35,7 +35,7 @@ model Chunk {
   document   Document @relation(fields: [documentId], references: [id])
   content    String
   pageNumber Int
-  embedding  Unsupported("vector(384)")
+  embedding Unsupported("vector(1024)")
 }
 
 model Conversation {
