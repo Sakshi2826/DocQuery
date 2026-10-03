@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { embedText } from "@/lib/embeddings";
 
-const nvidia = new OpenAI({
-  apiKey: process.env.NVIDIA_API_KEY,
-  baseURL: "https://integrate.api.nvidia.com/v1",
-});
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function POST(
   req: NextRequest,
@@ -52,16 +49,16 @@ export async function POST(
     .map((c, i) => `[${i + 1}] (page ${c.pageNumber}) ${c.content}`)
     .join("\n\n");
 
-  const response = await nvidia.chat.completions.create({
-    model: "meta/llama-3.1-70b-instruct",
-    max_tokens: 1000,
-    messages: [
-      {
-        role: "user",
-        content: `Answer using only this context. Cite sources as [1], [2] etc.\n\nContext:\n${context}\n\nQuestion: ${question}`,
-      },
-    ],
-  });
+const response = await groq.chat.completions.create({
+  model: "openai/gpt-oss-20b",
+  max_tokens: 1000,
+  messages: [
+    {
+      role: "user",
+      content: `Answer using only this context. Cite sources as [1], [2] etc.\n\nContext:\n${context}\n\nQuestion: ${question}`,
+    },
+  ],
+});
 
   const answerText = response.choices[0]?.message?.content ?? "";
 
